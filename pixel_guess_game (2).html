@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Guess Game - Sederhana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #f8fafc;
+            user-select: none;
+            overflow-x: hidden;
+        }
+        .font-pixel {
+            font-family: 'Press Start 2P', cursive;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col justify-between p-3 md:p-5">
+
+    <!-- Top Minimal Header -->
+    <header class="glass-panel rounded-2xl px-4 py-2.5 flex justify-between items-center z-20 shadow-xl border border-slate-800">
+        <!-- Counter Badge -->
+        <div class="bg-slate-900 px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold flex items-center gap-2">
+            <i class="fa-regular fa-image text-indigo-400"></i>
+            <span>Foto <strong id="currentSlideIndex" class="text-indigo-400">0</strong> / <span id="totalSlidesCount">0</span></span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Upload Photos Modal Trigger -->
+            <button onclick="toggleUploadModal()" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Upload Foto (<span id="btnImageCount">0</span>)</span>
+            </button>
+
+            <!-- Fullscreen Toggle Button -->
+            <button onclick="toggleFullscreen()" title="Layar Penuh (F)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs transition">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Display Section Optimized for Projectors -->
+    <main class="flex-1 flex flex-col justify-center items-center my-3 relative overflow-hidden">
+        
+        <!-- Canvas Container Box -->
+        <div class="relative w-full h-full flex flex-col items-center justify-center bg-slate-950 rounded-2xl border-2 border-slate-800/80 shadow-2xl overflow-hidden group">
+            
+            <!-- Canvas Object -->
+            <canvas id="gameCanvas" class="w-full h-full object-contain"></canvas>
+
+            <!-- Overlay state when no images loaded -->
+            <div id="noImageOverlay" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/95 z-10">
+                <div class="w-20 h-20 bg-indigo-950/80 rounded-3xl border border-indigo-800 flex items-center justify-center mb-4 text-indigo-400 animate-pulse">
+                    <i class="fa-solid fa-images text-4xl"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">Belum Ada Foto Terpilih</h2>
+                <p class="text-slate-400 max-w-md text-sm mb-6">Upload 10 - 100+ foto sekaligus dari laptop Anda untuk langsung dimainkan di proyektor.</p>
+                <button onclick="toggleUploadModal()" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-xl transition transform hover:scale-105 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle"></i> Upload Foto Sekarang
+                </button>
+            </div>
+
+            <!-- Answer Banner (Revealed on Demand) -->
+            <div id="answerOverlay" class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent p-6 pt-16 transform translate-y-full transition-transform duration-300 z-20 flex flex-col items-center pointer-events-none">
+                <span class="text-xs font-bold text-indigo-400 tracking-widest uppercase mb-1">Kunci Jawaban</span>
+                <h3 id="answerText" class="text-2xl md:text-5xl font-extrabold text-amber-300 text-center font-pixel drop-shadow-lg">
+                    ---
+                </h3>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Bottom Interactive Control Bar -->
+    <footer class="glass-panel rounded-2xl p-3 flex flex-col md:flex-row items-center justify-between gap-3 shadow-2xl border border-slate-800">
+        
+        <!-- Left: Quick Navigation Controls -->
+        <div class="flex items-center gap-2 w-full md:w-auto justify-center">
+            <button onclick="stepBackward()" title="Buremkan / Foto Sebelumnya (Panah Kiri)" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-semibold rounded-xl border border-slate-700 transition flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-chevron-left"></i> Buram / Prev
+            </button>
+
+            <button onclick="revealNextStep()" title="Perjelas / Foto Selanjutnya (Spasi / Panah Kanan)" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i> Perjelas / Next <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <button onclick="toggleAnswer()" id="btnToggleAnswer" title="Buka/Tutup Jawaban (Key A)" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-amber-600/30 transition flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-eye"></i> Jawaban
+            </button>
+        </div>
+
+        <!-- Middle: Slider -->
+        <div class="flex items-center gap-3 w-full md:w-1/3 px-2">
+            <i class="fa-solid fa-sliders text-indigo-400 text-sm"></i>
+            <input type="range" id="pixelSlider" min="0" max="7" step="1" value="0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+            <span id="pixelFactorText" class="text-xs font-mono text-indigo-300 bg-slate-900 border border-slate-700 px-2 py-1 rounded min-w-[50px] text-center">80px</span>
+        </div>
+
+        <!-- Right: Keyboard Hints for Host -->
+        <div class="hidden lg:flex items-center gap-2 text-[11px] text-slate-400 font-medium">
+            <span class="bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-amber-300 font-mono">Spasi / ➔</span> Perjelas ➔ Next
+            <span class="bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-amber-300 font-mono">⬅</span> Buramkan ➔ Prev
+            <span class="bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-amber-300 font-mono">A</span> Jawaban
+            <span class="bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-amber-300 font-mono">F</span> Fullscreen
+        </div>
+
+    </footer>
+
+    <!-- Modal Upload Massal (10-100 Foto) -->
+    <div id="uploadModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="glass-panel w-full max-w-3xl max-h-[85vh] rounded-2xl p-6 flex flex-col gap-5 border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-200" id="uploadModalContent">
+            
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-indigo-600/20 text-indigo-400 rounded-xl">
+                        <i class="fa-solid fa-folder-open text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Upload Foto Acara</h3>
+                        <p class="text-xs text-slate-400">Pilih sekaligus 10, 20, hingga 100+ foto. Nama file otomatis jadi kunci jawaban.</p>
+                    </div>
+                </div>
+                <button onclick="toggleUploadModal()" class="text-slate-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Dropzone -->
+            <div id="dropZone" onclick="document.getElementById('fileInput').click()" class="border-2 border-dashed border-indigo-500/50 hover:border-indigo-400 bg-slate-900/50 hover:bg-slate-800/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition">
+                <input type="file" id="fileInput" multiple accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                <i class="fa-solid fa-images text-4xl text-indigo-400 mb-2"></i>
+                <h4 class="font-bold text-white text-base">Klik atau Tarik Foto ke Sini</h4>
+                <p class="text-xs text-slate-400 mt-1">Mendukung format JPG, PNG, WEBP (bisa pilih banyak file sekaligus)</p>
+            </div>
+
+            <!-- Image list preview & title editor -->
+            <div class="flex-1 overflow-y-auto max-h-[260px] border border-slate-800 rounded-xl p-3 bg-slate-950/80">
+                <div class="flex justify-between items-center mb-3 text-xs font-semibold text-slate-400 px-1">
+                    <span>Daftar Foto (<span id="modalImageListCount">0</span>)</span>
+                    <button onclick="clearAllImages()" class="text-rose-400 hover:underline text-xs">Hapus Semua Foto</button>
+                </div>
+                
+                <div id="imageListGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                    <!-- Dynamic thumbs -->
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                <button onclick="loadDefaultSamples()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl border border-slate-700 transition">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> Muat Foto Contoh (Demo)
+                </button>
+                <button onclick="toggleUploadModal()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition">
+                    Selesai & Mulai Main
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-20 right-5 bg-indigo-600 text-white px-4 py-2.5 rounded-xl shadow-2xl border border-indigo-400 flex items-center gap-2 transform translate-y-10 opacity-0 transition-all duration-200 z-50 pointer-events-none text-xs font-semibold">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMessage">Notifikasi</span>
+    </div>
+
+    <script>
+        // Game Settings & States
+        const PIXEL_STEPS = [90, 55, 35, 20, 12, 6, 3, 1]; // Step factor pixelation
+        const PIXEL_LABELS = [
+            "Sangat Buram (Step 1)",
+            "Buram (Step 2)",
+            "Agak Buram (Step 3)",
+            "Mulai Kelihatan (Step 4)",
+            "Mulai Jelas (Step 5)",
+            "Cukup Jelas (Step 6)",
+            "Hampir Jelas (Step 7)",
+            "Gambar Asli (100%)"
+        ];
+
+        let slides = []; // Array of { id, url, name }
+        let currentSlideIdx = 0;
+        let currentStepIdx = 0;
+        let isAnswerRevealed = false;
+
+        // Render Canvas Function
+        function renderCanvas() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+
+            if (slides.length === 0) {
+                document.getElementById('noImageOverlay').classList.remove('hidden');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            } else {
+                document.getElementById('noImageOverlay').classList.add('hidden');
+            }
+
+            const currentSlide = slides[currentSlideIdx];
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = currentSlide.url;
+
+            img.onload = () => {
+                const container = canvas.parentElement;
+                const targetWidth = container.clientWidth;
+                const targetHeight = container.clientHeight || 500;
+
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+
+                const imgRatio = img.naturalWidth / img.naturalHeight;
+                const containerRatio = targetWidth / targetHeight;
+
+                let drawWidth, drawHeight, offsetX, offsetY;
+                if (imgRatio > containerRatio) {
+                    drawWidth = targetWidth;
+                    drawHeight = targetWidth / imgRatio;
+                    offsetX = 0;
+                    offsetY = (targetHeight - drawHeight) / 2;
+                } else {
+                    drawHeight = targetHeight;
+                    drawWidth = targetHeight * imgRatio;
+                    offsetX = (targetWidth - drawWidth) / 2;
+                    offsetY = 0;
+                }
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const currentPixelSize = PIXEL_STEPS[currentStepIdx];
+
+                if (currentPixelSize <= 1) {
+                    // Crisp original image
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+                } else {
+                    // Pixelated effect via offscreen downscaling & upscaling
+                    const offscreen = document.createElement('canvas');
+                    const offCtx = offscreen.getContext('2d');
+
+                    const scaledW = Math.max(1, Math.floor(drawWidth / currentPixelSize));
+                    const scaledH = Math.max(1, Math.floor(drawHeight / currentPixelSize));
+
+                    offscreen.width = scaledW;
+                    offscreen.height = scaledH;
+
+                    offCtx.imageSmoothingEnabled = true;
+                    offCtx.drawImage(img, 0, 0, scaledW, scaledH);
+
+                    ctx.imageSmoothingEnabled = false; // Nearest neighbor pixel blocks
+                    ctx.drawImage(offscreen, 0, 0, scaledW, scaledH, offsetX, offsetY, drawWidth, drawHeight);
+                }
+
+                // Update UI Information
+                document.getElementById('currentSlideIndex').textContent = currentSlideIdx + 1;
+                document.getElementById('totalSlidesCount').textContent = slides.length;
+                document.getElementById('btnImageCount').textContent = slides.length;
+                document.getElementById('modalImageListCount').textContent = slides.length;
+
+                document.getElementById('pixelSlider').value = currentStepIdx;
+                document.getElementById('pixelFactorText').textContent = currentPixelSize + 'px';
+
+                document.getElementById('answerText').textContent = currentSlide.name || 'Gambar #' + (currentSlideIdx + 1);
+            };
+        }
+
+        // File Selection Handler (Mass upload 10-100 files)
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            if (!files || files.length === 0) return;
+
+            const newSlides = files.map((file) => {
+                const objectUrl = URL.createObjectURL(file);
+                // Strip extension for title answer
+                const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+                return {
+                    id: Date.now() + "_" + Math.random().toString(36).substring(2, 7),
+                    url: objectUrl,
+                    name: capitalizeWords(cleanName)
+                };
+            });
+
+            slides = [...slides, ...newSlides];
+            updateImageListGrid();
+            renderCanvas();
+            showToast(`${files.length} foto berhasil diupload!`);
+        }
+
+        // Drag & Drop
+        const dropZone = document.getElementById('dropZone');
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-indigo-400', 'bg-slate-800/80');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-indigo-400', 'bg-slate-800/80');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                handleFileSelect({ target: { files: files } });
+            }
+        });
+
+        function capitalizeWords(str) {
+            return str.replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        // Render Thumbnails inside Upload Modal
+        function updateImageListGrid() {
+            const grid = document.getElementById('imageListGrid');
+            grid.innerHTML = '';
+
+            slides.forEach((slide, index) => {
+                const card = document.createElement('div');
+                card.className = `p-2 rounded-xl bg-slate-900 border flex items-center gap-2.5 ${index === currentSlideIdx ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-slate-800'}`;
+                
+                card.innerHTML = `
+                    <img src="${slide.url}" class="w-10 h-10 object-cover rounded-lg border border-slate-700">
+                    <div class="flex-1 min-w-0">
+                        <input type="text" value="${slide.name}" onchange="updateSlideName('${slide.id}', this.value)" 
+                            class="w-full bg-slate-800 border border-slate-700 text-xs rounded px-2 py-0.5 text-white focus:outline-none focus:border-indigo-500 truncate">
+                        <span class="text-[10px] text-slate-500">Foto #${index + 1}</span>
+                    </div>
+                    <button onclick="removeSlide('${slide.id}')" class="text-slate-500 hover:text-rose-400 p-1">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateSlideName(id, newName) {
+            const slide = slides.find(s => s.id === id);
+            if (slide) {
+                slide.name = newName;
+                if (slides[currentSlideIdx] && slides[currentSlideIdx].id === id) {
+                    document.getElementById('answerText').textContent = newName;
+                }
+            }
+        }
+
+        function removeSlide(id) {
+            slides = slides.filter(s => s.id !== id);
+            if (currentSlideIdx >= slides.length) {
+                currentSlideIdx = Math.max(0, slides.length - 1);
+            }
+            updateImageListGrid();
+            renderCanvas();
+        }
+
+        function clearAllImages() {
+            slides = [];
+            currentSlideIdx = 0;
+            updateImageListGrid();
+            renderCanvas();
+            showToast("Semua foto dihapus.");
+        }
+
+        function loadDefaultSamples() {
+            slides = [
+                { id: 'sample1', url: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop', name: 'Kucing Imut' },
+                { id: 'sample2', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop', name: 'Pantai Tropis' },
+                { id: 'sample3', url: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&auto=format&fit=crop', name: 'Mobil Sport Merah' },
+                { id: 'sample4', url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop', name: 'Pizza Keju' },
+                { id: 'sample5', url: 'https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=800&auto=format&fit=crop', name: 'Monumen Nasional' }
+            ];
+            currentSlideIdx = 0;
+            currentStepIdx = 0;
+            updateImageListGrid();
+            renderCanvas();
+            showToast("5 Foto contoh dimuat!");
+        }
+
+        // Gameplay Actions
+        function revealNextStep() {
+            if (slides.length === 0) return;
+            if (currentStepIdx < PIXEL_STEPS.length - 1) {
+                currentStepIdx++;
+                renderCanvas();
+            } else {
+                // Jika sudah paling jelas, tekan lagi untuk lanjut ke slide berikutnya
+                nextSlide();
+            }
+        }
+
+        function stepBackward() {
+            if (slides.length === 0) return;
+            if (currentStepIdx > 0) {
+                currentStepIdx--;
+                renderCanvas();
+            } else {
+                // Jika sudah paling buram, tekan panah kiri untuk kembali ke slide sebelumnya
+                prevSlide();
+            }
+        }
+
+        function toggleAnswer() {
+            if (slides.length === 0) return;
+            isAnswerRevealed = !isAnswerRevealed;
+            const overlay = document.getElementById('answerOverlay');
+            
+            if (isAnswerRevealed) {
+                overlay.classList.remove('translate-y-full');
+                currentStepIdx = PIXEL_STEPS.length - 1; // Unblur image on answer reveal
+                renderCanvas();
+            } else {
+                overlay.classList.add('translate-y-full');
+            }
+        }
+
+        function hideAnswer() {
+            isAnswerRevealed = false;
+            document.getElementById('answerOverlay').classList.add('translate-y-full');
+        }
+
+        function nextSlide() {
+            if (slides.length === 0) return;
+            currentSlideIdx = (currentSlideIdx + 1) % slides.length;
+            currentStepIdx = 0;
+            hideAnswer();
+            renderCanvas();
+        }
+
+        function prevSlide() {
+            if (slides.length === 0) return;
+            currentSlideIdx = (currentSlideIdx - 1 + slides.length) % slides.length;
+            currentStepIdx = 0;
+            hideAnswer();
+            renderCanvas();
+        }
+
+        // Slider Input Event
+        document.getElementById('pixelSlider').addEventListener('input', (e) => {
+            currentStepIdx = parseInt(e.target.value);
+            renderCanvas();
+        });
+
+        // Modals & Fullscreen Helpers
+        function toggleUploadModal() {
+            const modal = document.getElementById('uploadModal');
+            const content = document.getElementById('uploadModalContent');
+            if (modal.classList.contains('opacity-0')) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('scale-95');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                content.classList.add('scale-95');
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {
+                    showToast("Gagal fullscreen");
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-10', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+            }, 2000);
+        }
+
+        // Host Keyboard Shortcuts Listener
+        window.addEventListener('keydown', (e) => {
+            if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+            if (e.code === 'Space' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                revealNextStep();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                stepBackward();
+            } else if (e.key === 'a' || e.key === 'A') {
+                toggleAnswer();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            }
+        });
+
+        // Window Resize Handler
+        window.addEventListener('resize', () => {
+            renderCanvas();
+        });
+
+        // Initial Load Routine
+        window.onload = function() {
+            loadDefaultSamples();
+        };
+    </script>
+</body>
+</html>
