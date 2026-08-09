@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truth or Dare - Bahasa Indonesia</title>
+    <!-- SEO Best Practices -->
+    <meta name="description" content="Aplikasi interaktif Truth or Dare Bahasa Indonesia untuk Mabit kelas 5">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #000000;
+            --hover-color: #f3f4f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Minimalist Background Pattern */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        #app {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 1400px;
+            text-align: center;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        .screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Home Screen */
+        .title {
+            font-size: 6vw;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1;
+            color: var(--text-color);
+        }
+
+        .subtitle {
+            font-size: 2vw;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 4rem;
+            color: #4b5563;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .cards-container {
+            display: flex;
+            gap: 4vw;
+            justify-content: center;
+            padding: 0 2rem;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+            height: 45vh;
+            min-height: 350px;
+            background: var(--bg-color);
+            border: 4px solid var(--border-color);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 12px 12px 0px var(--border-color);
+        }
+
+        .card:hover, .card.hover-sim {
+            transform: translate(-6px, -6px);
+            box-shadow: 18px 18px 0px var(--border-color);
+            background: var(--hover-color);
+        }
+        
+        .card:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px var(--border-color);
+        }
+
+        .card h2 {
+            font-size: 5vw;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        .card p {
+            font-size: 1.8vw;
+            font-weight: 600;
+            color: #4b5563;
+            z-index: 2;
+        }
+
+        /* Question Screen */
+        .question-container {
+            background: var(--bg-color);
+            border: 4px solid var(--border-color);
+            border-radius: 24px;
+            padding: 6vw;
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 15px 15px 0px var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .type-badge {
+            position: absolute;
+            top: -30px;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: var(--text-color);
+            color: var(--bg-color);
+            border: 4px solid var(--border-color);
+        }
+
+        #question-text {
+            font-size: 3.5vw;
+            line-height: 1.4;
+            font-weight: 800;
+            text-align: center;
+            max-width: 1200px;
+            margin: 2rem 0;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-back {
+            margin-top: 4rem;
+            padding: 1rem 3rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 4px solid var(--border-color);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            text-transform: uppercase;
+            box-shadow: 6px 6px 0px var(--border-color);
+        }
+
+        .btn-back:hover, .btn-back:focus {
+            background: var(--text-color);
+            color: var(--bg-color);
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px var(--border-color);
+        }
+        
+        .btn-back:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px var(--border-color);
+        }
+
+        .controls-hint {
+            position: fixed;
+            bottom: 2rem;
+            width: 100%;
+            text-align: center;
+            color: #6b7280;
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        kbd {
+            background: var(--bg-color);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 2px solid #6b7280;
+            font-family: monospace;
+            color: #374151;
+            margin: 0 0.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen active">
+            <h1 class="title">Bahasa Indonesia</h1>
+            <p class="subtitle">Satu, Dua, Bom!</p>
+            <div class="cards-container">
+                <div class="card" onclick="selectType('truth')" id="btn-truth">
+                    <h2>TRUTH</h2>
+                    <p>(Jawab/Berpikir)</p>
+                </div>
+                <div class="card" onclick="selectType('dare')" id="btn-dare">
+                    <h2>DARE</h2>
+                    <p>(Praktik)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Screen -->
+        <div id="question-screen" class="screen">
+            <div class="question-container" id="question-box">
+                <div class="type-badge" id="question-type-badge">TRUTH</div>
+                <div id="question-text">Menyiapkan...</div>
+                <button class="btn-back" id="btn-back" onclick="goBack()">Kembali</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-hint">
+        Operator: <kbd>←</kbd> Truth | <kbd>→</kbd> Dare | <kbd>Spasi</kbd> Kembali
+    </div>
+
+    <!-- Load data file -->
+    <script src="data.js"></script>
+    <script>
+        const homeScreen = document.getElementById('home-screen');
+        const questionScreen = document.getElementById('question-screen');
+        const questionText = document.getElementById('question-text');
+        const questionBadge = document.getElementById('question-type-badge');
+        
+        const btnTruth = document.getElementById('btn-truth');
+        const btnDare = document.getElementById('btn-dare');
+
+        let isAnimating = false;
+        let currentScreen = 'home'; // 'home' or 'question'
+
+        // Data arrays from data.js
+        let availableTruths = [...truthQuestions];
+        let availableDares = [...dareQuestions];
+
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if (isAnimating) return;
+
+            if (currentScreen === 'home') {
+                if (e.key === 'ArrowLeft') {
+                    triggerButtonSim(btnTruth, 'truth');
+                } else if (e.key === 'ArrowRight') {
+                    triggerButtonSim(btnDare, 'dare');
+                }
+            } else if (currentScreen === 'question') {
+                if (e.key === ' ' || e.key === 'Escape' || e.key === 'Backspace' || e.key === 'Enter') {
+                    e.preventDefault(); 
+                    document.getElementById('btn-back').focus();
+                    goBack();
+                }
+            }
+        });
+
+        function triggerButtonSim(btn, type) {
+            btn.classList.add('hover-sim');
+            setTimeout(() => {
+                btn.classList.remove('hover-sim');
+                selectType(type);
+            }, 150);
+        }
+
+        function selectType(type) {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            // Setup Screen
+            if (type === 'truth') questionBadge.textContent = 'TRUTH';
+            if (type === 'dare') questionBadge.textContent = 'DARE';
+            
+            // Hide Home, Show Question Box
+            switchScreen(homeScreen, questionScreen);
+            currentScreen = 'question';
+            
+            // Start shuffle animation
+            shuffleText(type);
+        }
+
+        function goBack() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            switchScreen(questionScreen, homeScreen);
+            currentScreen = 'home';
+            document.getElementById('btn-back').blur();
+            
+            setTimeout(() => {
+                isAnimating = false;
+            }, 300);
+        }
+
+        function switchScreen(hideEl, showEl) {
+            hideEl.style.opacity = 0;
+            hideEl.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                hideEl.classList.remove('active');
+                showEl.classList.add('active');
+                
+                void showEl.offsetWidth; // Trigger reflow
+                
+                showEl.style.opacity = 1;
+                showEl.style.transform = 'translateY(0)';
+            }, 200);
+        }
+
+        function getQuestion(type) {
+            let list;
+            
+            if (type === 'truth') {
+                list = availableTruths;
+            } else {
+                list = availableDares;
+            }
+
+            // If empty, reset list
+            if (list.length === 0) {
+                if (type === 'truth') availableTruths = [...truthQuestions];
+                if (type === 'dare') availableDares = [...dareQuestions];
+                list = type === 'truth' ? availableTruths : availableDares;
+            }
+
+            const randomIndex = Math.floor(Math.random() * list.length);
+            const question = list[randomIndex];
+            
+            list.splice(randomIndex, 1);
+            return question;
+        }
+
+        function getRandomItemForShuffle(type) {
+            const list = type === 'truth' ? truthQuestions : dareQuestions;
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function shuffleText(type) {
+            let counter = 0;
+            const maxShuffles = 20; 
+            const intervalTime = 50; 
+            
+            const interval = setInterval(() => {
+                questionText.textContent = getRandomItemForShuffle(type);
+                questionText.style.opacity = 0.3 + (Math.random() * 0.4);
+                
+                counter++;
+                
+                if (counter >= maxShuffles) {
+                    clearInterval(interval);
+                    
+                    const finalQuestion = getQuestion(type);
+                    questionText.textContent = finalQuestion;
+                    
+                    // Final reveal style
+                    questionText.style.opacity = 1;
+                    
+                    isAnimating = false;
+                }
+            }, intervalTime);
+        }
+    </script>
+</body>
+</html>
