@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,6 +62,7 @@
             transform: translateY(20px);
             transition: all 0.3s ease;
         }
+
         .screen.active {
             display: block;
             opacity: 1;
@@ -116,12 +118,13 @@
             box-shadow: 12px 12px 0px var(--border-color);
         }
 
-        .card:hover, .card.hover-sim {
+        .card:hover,
+        .card.hover-sim {
             transform: translate(-6px, -6px);
             box-shadow: 18px 18px 0px var(--border-color);
             background: var(--hover-color);
         }
-        
+
         .card:active {
             transform: translate(6px, 6px);
             box-shadow: 0px 0px 0px var(--border-color);
@@ -201,13 +204,14 @@
             box-shadow: 6px 6px 0px var(--border-color);
         }
 
-        .btn-back:hover, .btn-back:focus {
+        .btn-back:hover,
+        .btn-back:focus {
             background: var(--text-color);
             color: var(--bg-color);
             transform: translate(-2px, -2px);
             box-shadow: 8px 8px 0px var(--border-color);
         }
-        
+
         .btn-back:active {
             transform: translate(4px, 4px);
             box-shadow: 0px 0px 0px var(--border-color);
@@ -237,6 +241,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="app">
         <!-- Home Screen -->
@@ -246,11 +251,11 @@
             <div class="cards-container">
                 <div class="card" onclick="selectType('truth')" id="btn-truth">
                     <h2>TRUTH</h2>
-                    <p>(Jawab/Berpikir)</p>
+
                 </div>
                 <div class="card" onclick="selectType('dare')" id="btn-dare">
                     <h2>DARE</h2>
-                    <p>(Praktik)</p>
+
                 </div>
             </div>
         </div>
@@ -276,7 +281,7 @@
         const questionScreen = document.getElementById('question-screen');
         const questionText = document.getElementById('question-text');
         const questionBadge = document.getElementById('question-type-badge');
-        
+
         const btnTruth = document.getElementById('btn-truth');
         const btnDare = document.getElementById('btn-dare');
 
@@ -299,7 +304,7 @@
                 }
             } else if (currentScreen === 'question') {
                 if (e.key === ' ' || e.key === 'Escape' || e.key === 'Backspace' || e.key === 'Enter') {
-                    e.preventDefault(); 
+                    e.preventDefault();
                     document.getElementById('btn-back').focus();
                     goBack();
                 }
@@ -317,15 +322,15 @@
         function selectType(type) {
             if (isAnimating) return;
             isAnimating = true;
-            
+
             // Setup Screen
             if (type === 'truth') questionBadge.textContent = 'TRUTH';
             if (type === 'dare') questionBadge.textContent = 'DARE';
-            
+
             // Hide Home, Show Question Box
             switchScreen(homeScreen, questionScreen);
             currentScreen = 'question';
-            
+
             // Start shuffle animation
             shuffleText(type);
         }
@@ -333,11 +338,11 @@
         function goBack() {
             if (isAnimating) return;
             isAnimating = true;
-            
+
             switchScreen(questionScreen, homeScreen);
             currentScreen = 'home';
             document.getElementById('btn-back').blur();
-            
+
             setTimeout(() => {
                 isAnimating = false;
             }, 300);
@@ -346,13 +351,13 @@
         function switchScreen(hideEl, showEl) {
             hideEl.style.opacity = 0;
             hideEl.style.transform = 'translateY(-20px)';
-            
+
             setTimeout(() => {
                 hideEl.classList.remove('active');
                 showEl.classList.add('active');
-                
+
                 void showEl.offsetWidth; // Trigger reflow
-                
+
                 showEl.style.opacity = 1;
                 showEl.style.transform = 'translateY(0)';
             }, 200);
@@ -360,7 +365,7 @@
 
         function getQuestion(type) {
             let list;
-            
+
             if (type === 'truth') {
                 list = availableTruths;
             } else {
@@ -376,7 +381,7 @@
 
             const randomIndex = Math.floor(Math.random() * list.length);
             const question = list[randomIndex];
-            
+
             list.splice(randomIndex, 1);
             return question;
         }
@@ -388,28 +393,29 @@
 
         function shuffleText(type) {
             let counter = 0;
-            const maxShuffles = 20; 
-            const intervalTime = 50; 
-            
+            const maxShuffles = 20;
+            const intervalTime = 50;
+
             const interval = setInterval(() => {
                 questionText.textContent = getRandomItemForShuffle(type);
                 questionText.style.opacity = 0.3 + (Math.random() * 0.4);
-                
+
                 counter++;
-                
+
                 if (counter >= maxShuffles) {
                     clearInterval(interval);
-                    
+
                     const finalQuestion = getQuestion(type);
                     questionText.textContent = finalQuestion;
-                    
+
                     // Final reveal style
                     questionText.style.opacity = 1;
-                    
+
                     isAnimating = false;
                 }
             }, intervalTime);
         }
     </script>
 </body>
+
 </html>
