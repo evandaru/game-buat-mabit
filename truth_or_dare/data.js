@@ -32,7 +32,6 @@ const dareQuestions = [
     "Buat cerita spontan dari tiga kata: sehat – sekolah – olahraga.",
     "Berpidato tentang pentingnya menjaga kesehatan selama 1 menit tanpa berhenti.",
     "Buat pantun bertema kesehatan.",
-    "Ubah sebuah kalimat langsung bertema kesehatan menjadi kalimat tidak langsung.",
     "Sebutkan sebuah peribahasa yang kamu ketahui, lalu jelaskan artinya.",
     "Sebutkan sinonim dari 5 kata bertema kesehatan yang kamu pilih sendiri.",
     "Sebutkan antonim dari 5 kata yang kamu pilih sendiri dan buat semuanya berkaitan dengan kesehatan.",
