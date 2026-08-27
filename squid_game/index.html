@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Red Light Green Light - Proyektor</title>
+    <script>
+        // Normalisasi URL Vercel agar relative path 'img/...' dan 'sound/...' tidak 404
+        if (window.location.pathname && !window.location.pathname.endsWith('/') && !window.location.pathname.includes('.')) {
+            window.location.replace(window.location.pathname + '/' + window.location.search + window.location.hash);
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -121,11 +127,26 @@
         const timerEl = document.getElementById('timer');
         const stateImg = document.getElementById('stateImg');
 
+        // Helper untuk memastikan path aset (gambar & suara) selalu benar di Vercel
+        function getAssetPath(relPath) {
+            const path = window.location.pathname;
+            if (!path.endsWith('/') && !path.includes('.')) {
+                const seg = path.substring(path.lastIndexOf('/') + 1);
+                return seg + '/' + relPath;
+            }
+            return relPath;
+        }
+
+        const imgStartPath = getAssetPath('img/start.jpg');
+        const imgStopPath = getAssetPath('img/stop.jpg');
+        const startSoundPath = getAssetPath('sound/start.mp3');
+        const stopSoundPath = getAssetPath('sound/stop.mp3');
+
         // Preload gambar agar tidak patah/delay saat ganti fase
         const imgStart = new Image();
-        imgStart.src = 'img/start.jpg';
+        imgStart.src = imgStartPath;
         const imgStop = new Image();
-        imgStop.src = 'img/stop.jpg';
+        imgStop.src = imgStopPath;
 
         let isPlaying = false;
         let switchTimer = null;
@@ -144,22 +165,17 @@
         }
 
         // --- AUDIO EFEK ---
-        const startSound = new Audio('sound/start.mp3');
-        const stopSound = new Audio('sound/stop.mp3');
-        startSound.volume = 0.5; // Menyesuaikan volume start agar suara stop terasa jauh lebih kencang
+        const startSound = new Audio(startSoundPath);
+        const stopSound = new Audio(stopSoundPath);
+        startSound.volume = 0.3; // Volume start lebih lembut
+        stopSound.volume = 1.0;  // Volume stop 100% full (sangat kencang)
 
         let audioCtx = null;
-        let stopGainNode = null;
 
         function initAudio() {
             if (!audioCtx) {
                 try {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    const stopSource = audioCtx.createMediaElementSource(stopSound);
-                    stopGainNode = audioCtx.createGain();
-                    stopGainNode.gain.value = 3.5; // Boost volume stop hingga 3.5x (350%)
-                    stopSource.connect(stopGainNode);
-                    stopGainNode.connect(audioCtx.destination);
                 } catch (e) {
                     console.log('Web Audio setup error:', e);
                 }
@@ -171,18 +187,22 @@
 
         function playStartSound() {
             initAudio();
-            stopSound.pause();
-            stopSound.currentTime = 0;
-            startSound.currentTime = 0;
-            startSound.play().catch(e => console.log('Audio play error:', e));
+            try {
+                stopSound.pause();
+                stopSound.currentTime = 0;
+                startSound.currentTime = 0;
+                startSound.play().catch(e => console.log('Audio play error:', e));
+            } catch (e) {}
         }
 
         function playStopSound() {
             initAudio();
-            startSound.pause();
-            startSound.currentTime = 0;
-            stopSound.currentTime = 0;
-            stopSound.play().catch(e => console.log('Audio play error:', e));
+            try {
+                startSound.pause();
+                startSound.currentTime = 0;
+                stopSound.currentTime = 0;
+                stopSound.play().catch(e => console.log('Audio play error:', e));
+            } catch (e) {}
         }
 
         function setGreen() {
@@ -190,7 +210,7 @@
             statusEl.textContent = 'GASSS';
             subEl.textContent = 'OTW NIHH BOSSS😂';
 
-            stateImg.src = 'img/start.jpg';
+            stateImg.src = imgStartPath;
             stateImg.style.display = 'block';
 
             // Mainkan suara Start
@@ -205,7 +225,7 @@
             statusEl.textContent = 'DIAMMM';
             subEl.textContent = 'AWAS KAKI SAYA SAKIT😭';
 
-            stateImg.src = 'img/stop.jpg';
+            stateImg.src = imgStopPath;
             stateImg.style.display = 'block';
 
             // Mainkan suara Stop
