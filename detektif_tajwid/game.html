@@ -1,0 +1,1472 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detektif Tajwid — Misteri Nun Sakinah & Tanwin</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --black: #111;
+        --white: #fff;
+        --off: #fdfdf7;
+        --yellow: #ffd23f;
+        --green: #2ecc71;
+        --red: #ff4d4d;
+        --blue: #3b82f6;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        background-color: #fdfdf7;
+        background-image: radial-gradient(
+          circle,
+          #ddd 1.6px,
+          transparent 1.6px
+        );
+        background-size: 22px 22px;
+        color: var(--black);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      a {
+        color: inherit;
+      }
+      .topbar {
+        width: 100%;
+        text-align: center;
+        padding: 18px 0 6px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        font-size: 13px;
+      }
+      .container {
+        width: min(860px, 94vw);
+        margin: 0 auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 16px 0 28px;
+      }
+      .card {
+        background: var(--white);
+        border: 4px solid var(--black);
+        border-radius: 22px;
+        box-shadow: 8px 8px 0 var(--black);
+      }
+      .view {
+        width: 100%;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+      }
+      .view.active {
+        display: flex;
+      }
+      .h1 {
+        font-weight: 900;
+        text-align: center;
+        letter-spacing: 0.08em;
+        line-height: 1;
+      }
+      .h1-main {
+        font-size: clamp(32px, 6vw, 56px);
+      }
+      .h1-sub1 {
+        font-size: clamp(14px, 2.2vw, 18px);
+        margin-top: 10px;
+        letter-spacing: 0.18em;
+      }
+      .h1-sub2 {
+        font-size: clamp(14px, 2.2vw, 18px);
+        letter-spacing: 0.18em;
+      }
+      .tagline {
+        margin-top: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        opacity: 0.85;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--white);
+        border: 4px solid var(--black);
+        border-radius: 16px;
+        box-shadow: 6px 6px 0 var(--black);
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 16px 28px;
+        font-size: clamp(14px, 2vw, 18px);
+        cursor: pointer;
+        user-select: none;
+        transition:
+          transform 0.08s,
+          box-shadow 0.08s,
+          background 0.12s;
+        min-width: 260px;
+      }
+      .btn:hover {
+        transform: translate(-3px, -3px);
+        box-shadow: 9px 9px 0 var(--black);
+      }
+      .btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 var(--black);
+      }
+      .btn.primary {
+        background: var(--yellow);
+      }
+      .btn.dark {
+        background: var(--black);
+        color: #fff;
+        box-shadow: 6px 6px 0 #000;
+      }
+      .btn.small {
+        min-width: 160px;
+        padding: 12px 18px;
+        font-size: 14px;
+        border-radius: 14px;
+      }
+      .btn.choice {
+        min-width: 0;
+        width: 100%;
+        padding: 18px 10px;
+        font-size: clamp(15px, 2vw, 19px);
+        border-radius: 18px;
+      }
+      .btn.choice.selected {
+        outline: 4px solid var(--blue);
+        outline-offset: 0;
+      }
+      .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 6px 6px 0 var(--black);
+      }
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        align-items: center;
+        margin-top: 18px;
+      }
+      .menu-card {
+        width: min(560px, 92vw);
+        padding: 34px 28px;
+        text-align: center;
+      }
+      .game-wrap {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+      .status-row {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .pill {
+        border: 3px solid var(--black);
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-weight: 900;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        background: var(--white);
+        box-shadow: 4px 4px 0 var(--black);
+      }
+      .pill.yellow {
+        background: var(--yellow);
+      }
+      .hearts {
+        font-size: 18px;
+        letter-spacing: 2px;
+      }
+      .hearts .dead {
+        opacity: 0.22;
+        filter: grayscale(1);
+      }
+      .ayat-card {
+        width: min(760px, 98%);
+        padding: 28px 18px;
+        text-align: center;
+        position: relative;
+      }
+      .badge {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--black);
+        color: #fff;
+        border-radius: 999px;
+        padding: 5px 14px;
+        font-weight: 900;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        white-space: nowrap;
+      }
+      .ayat-arabic {
+        font-family: "Scheherazade New", "Traditional Arabic", serif;
+        font-size: clamp(36px, 6vw, 54px);
+        line-height: 1.6;
+        direction: rtl;
+        word-spacing: 0.2em;
+      }
+      .words {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+        direction: rtl;
+      }
+      .word {
+        font-family: "Scheherazade New", serif;
+        font-size: clamp(22px, 3.6vw, 34px);
+        border: 3px solid transparent;
+        border-radius: 14px;
+        padding: 6px 12px;
+        cursor: pointer;
+        background: #fff;
+        transition: all 0.12s;
+        direction: rtl;
+        line-height: 1.4;
+      }
+      .word:hover {
+        border-color: var(--black);
+        transform: translateY(-2px);
+        box-shadow: 4px 4px 0 var(--black);
+      }
+      .word.selected {
+        border-color: var(--black);
+        background: var(--yellow);
+        box-shadow: 6px 6px 0 var(--black);
+        transform: translateY(-1px);
+      }
+      .word.correct-flash {
+        animation: flash 0.5s;
+      }
+      @keyframes flash {
+        0% {
+          background: var(--yellow);
+        }
+        50% {
+          background: #b8f5b8;
+        }
+        100% {
+          background: var(--yellow);
+        }
+      }
+      .hint-panel {
+        width: min(760px, 98%);
+        padding: 14px 16px;
+        text-align: center;
+      }
+      .hint-title {
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        font-size: 12px;
+      }
+      .hint-desc {
+        font-size: 13px;
+        font-weight: 700;
+        margin-top: 4px;
+        line-height: 1.5;
+        opacity: 0.9;
+      }
+      .choices {
+        width: min(760px, 98%);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .evidence {
+        width: min(760px, 98%);
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .evidence-label {
+        font-weight: 900;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+      }
+      .evidence-letters {
+        font-family: "Scheherazade New", serif;
+        font-size: 22px;
+        letter-spacing: 0.18em;
+        direction: rtl;
+      }
+      .evidence-letters span {
+        display: inline-block;
+        border: 2px solid var(--black);
+        border-radius: 8px;
+        padding: 2px 7px;
+        background: var(--white);
+        box-shadow: 2px 2px 0 var(--black);
+      }
+      .kbd-hint {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        opacity: 0.7;
+        margin-top: 6px;
+        text-align: center;
+      }
+      .feedback {
+        width: min(520px, 96%);
+        padding: 24px 18px;
+        text-align: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        display: none;
+      }
+      .feedback.show {
+        display: block;
+        animation: pop 0.22s ease;
+      }
+      @keyframes pop {
+        from {
+          transform: translate(-50%, -50%) scale(0.92);
+        }
+        to {
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.42);
+        display: none;
+        z-index: 19;
+      }
+      .overlay.show {
+        display: block;
+      }
+      .fb-icon {
+        font-size: 36px;
+      }
+      .fb-title {
+        font-weight: 900;
+        font-size: 22px;
+        letter-spacing: 0.06em;
+        margin-top: 6px;
+      }
+      .fb-msg {
+        font-size: 13px;
+        font-weight: 700;
+        opacity: 0.85;
+        margin-top: 6px;
+        line-height: 1.5;
+      }
+      .fb-detail {
+        margin-top: 10px;
+        font-family: "Scheherazade New", serif;
+        font-size: 22px;
+      }
+      .fb-point {
+        margin-top: 8px;
+        font-weight: 900;
+        font-size: 14px;
+        letter-spacing: 0.08em;
+      }
+      .tutorial-card {
+        width: min(560px, 94vw);
+        padding: 26px 22px;
+        text-align: center;
+      }
+      .dots {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 14px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid var(--black);
+        background: #fff;
+      }
+      .dot.active {
+        background: var(--black);
+      }
+      .tut-step {
+        display: none;
+      }
+      .tut-step.active {
+        display: block;
+      }
+      .tut-emoji {
+        font-size: 40px;
+      }
+      .tut-title {
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        margin-top: 8px;
+        font-size: 18px;
+      }
+      .tut-text {
+        font-weight: 700;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-top: 8px;
+        opacity: 0.9;
+      }
+      .tut-nav {
+        margin-top: 18px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .result-card {
+        width: min(560px, 94vw);
+        padding: 30px 22px;
+        text-align: center;
+      }
+      .score-big {
+        font-weight: 900;
+        font-size: clamp(44px, 8vw, 64px);
+        line-height: 1;
+      }
+      .rank {
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        font-size: 13px;
+        margin-top: 8px;
+        background: var(--yellow);
+        display: inline-block;
+        padding: 6px 14px;
+        border: 3px solid var(--black);
+        border-radius: 999px;
+        box-shadow: 4px 4px 0 var(--black);
+      }
+      .progress {
+        width: 100%;
+        height: 10px;
+        border: 3px solid var(--black);
+        border-radius: 999px;
+        overflow: hidden;
+        background: #eee;
+        box-shadow: 3px 3px 0 var(--black);
+      }
+      .progress-bar {
+        height: 100%;
+        background: var(--black);
+        width: 0;
+        transition: width 0.3s;
+      }
+      @media (max-width: 560px) {
+        .choices {
+          grid-template-columns: 1fr;
+        }
+        .ayat-card {
+          padding: 20px 10px;
+        }
+      }
+      .sr-only {
+        position: absolute;
+        left: -9999px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">DETEKTIF TAJWID</div>
+    <div class="container">
+      <!-- MENU -->
+      <section id="view-menu" class="view active" aria-label="Menu">
+        <div class="card menu-card">
+          <div class="h1 h1-main">DETEKTIF<br />TAJWID</div>
+          <div class="h1-sub1">MISTERI NUN SAKINAH</div>
+          <div class="h1-sub2">& TANWIN</div>
+          <div class="tagline">“Temukan petunjuknya. Pecahkan tajwidnya.”</div>
+          <div class="stack">
+            <button class="btn primary" id="btn-mulai" autofocus>MULAI</button>
+            <button class="btn" id="btn-cara">CARA MAIN</button>
+          </div>
+          <div class="kbd-hint" style="margin-top: 16px">
+            ← → Pilih &nbsp;·&nbsp; ENTER Jawab &nbsp;·&nbsp; Spasi Kembali
+          </div>
+          <div
+            style="
+              margin-top: 14px;
+              font-size: 11px;
+              font-weight: 800;
+              opacity: 0.6;
+              letter-spacing: 0.06em;
+            "
+          >
+            Target: Anak SD kelas 4–6 &nbsp;·&nbsp; Materi: Idzhar Halqi ء ه ع ح
+            غ خ &nbsp;·&nbsp; Sumber: Juz 30
+          </div>
+        </div>
+        <!-- kartu bukti mini -->
+        <div
+          class="card evidence"
+          style="margin-top: 16px; width: min(560px, 92vw)"
+        >
+          <div class="evidence-label">KARTU BUKTI — HURUF IDZHAR</div>
+          <div class="evidence-letters">
+            <span>ء</span> <span>ه</span> <span>ع</span> <span>ح</span>
+            <span>غ</span> <span>خ</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TUTORIAL -->
+      <section id="view-tutorial" class="view" aria-label="Tutorial">
+        <div class="card tutorial-card">
+          <div id="tut-steps">
+            <div class="tut-step active" data-step="0">
+              <div class="tut-emoji">🔍</div>
+              <div class="tut-title">CARI TERSANGKA</div>
+              <div class="tut-text">
+                Temukan <b>Nun Sakinah (نْ)</b><br />atau
+                <b>Tanwin (ــً ــٍ ــٌ)</b> di dalam ayat.
+              </div>
+              <div
+                class="tut-text"
+                style="
+                  font-family: &quot;Scheherazade New&quot;, serif;
+                  font-size: 28px;
+                  margin-top: 10px;
+                "
+              >
+                نْ &nbsp; ــً &nbsp; ــٍ &nbsp; ــٌ
+              </div>
+            </div>
+            <div class="tut-step" data-step="1">
+              <div class="tut-emoji">👀</div>
+              <div class="tut-title">CARI PETUNJUK BERIKUTNYA</div>
+              <div class="tut-text">
+                Perhatikan <b>huruf setelah</b><br />Nun Sakinah atau Tanwin.
+              </div>
+              <div
+                class="tut-text"
+                style="
+                  margin-top: 10px;
+                  border: 3px solid #111;
+                  border-radius: 12px;
+                  padding: 10px;
+                  display: inline-block;
+                "
+              >
+                نْ &nbsp;<span style="opacity: 0.4">→</span>&nbsp;
+                <span
+                  style="
+                    font-family: &quot;Scheherazade New&quot;, serif;
+                    font-size: 22px;
+                  "
+                  >ه</span
+                >
+              </div>
+            </div>
+            <div class="tut-step" data-step="2">
+              <div class="tut-emoji">🗂️</div>
+              <div class="tut-title">6 HURUF IDZHAR</div>
+              <div class="tut-text">Hafalkan kartu bukti ini:</div>
+              <div
+                class="evidence-letters"
+                style="
+                  margin-top: 10px;
+                  justify-content: center;
+                  display: flex;
+                  gap: 6px;
+                  flex-wrap: wrap;
+                "
+              >
+                <span>ء</span><span>ه</span><span>ع</span><span>ح</span
+                ><span>غ</span><span>خ</span>
+              </div>
+            </div>
+            <div class="tut-step" data-step="3">
+              <div class="tut-emoji">⚖️</div>
+              <div class="tut-title">JIKA BERTEMU SALAH SATU...</div>
+              <div class="tut-text">
+                Jika huruf setelahnya adalah salah satu dari 6 huruf itu →
+              </div>
+              <div
+                style="
+                  margin-top: 10px;
+                  font-weight: 900;
+                  letter-spacing: 0.12em;
+                  background: var(--yellow);
+                  border: 3px solid #111;
+                  border-radius: 999px;
+                  padding: 8px 18px;
+                  display: inline-block;
+                  box-shadow: 4px 4px 0 #111;
+                "
+              >
+                IDZHAR
+              </div>
+              <div class="tut-text">Jika bukan → <b>BUKAN IDZHAR</b></div>
+            </div>
+            <div class="tut-step" data-step="4">
+              <div class="tut-emoji">🕵️</div>
+              <div class="tut-title">SIAP MENJADI DETEKTIF?</div>
+              <div class="tut-text">
+                Klik tersangka di ayat, lalu putuskan:<br /><b>IDZHAR</b> atau
+                <b>BUKAN IDZHAR</b>
+              </div>
+              <div class="tut-text" style="font-size: 11px; opacity: 0.6">
+                Tip: Kesalahan klik tersangka tidak mengurangi nyawa. Nyawa
+                hanya berkurang saat salah menentukan hukum.
+              </div>
+            </div>
+          </div>
+          <div class="dots" id="tut-dots">
+            <span class="dot active"></span><span class="dot"></span
+            ><span class="dot"></span><span class="dot"></span
+            ><span class="dot"></span>
+          </div>
+          <div class="tut-nav">
+            <button class="btn small" id="tut-prev">KEMBALI</button>
+            <button class="btn small primary" id="tut-next">LANJUT</button>
+            <button class="btn small dark" id="tut-start" style="display: none">
+              MULAI MISI
+            </button>
+          </div>
+          <div class="kbd-hint">
+            ← → Navigasi &nbsp;·&nbsp; ENTER Lanjut &nbsp;·&nbsp; Spasi Menu
+          </div>
+        </div>
+      </section>
+
+      <!-- GAME -->
+      <section id="view-game" class="view" aria-label="Game">
+        <div class="game-wrap">
+          <div class="status-row">
+            <div class="pill yellow" id="level-pill">KASUS #01 — LEVEL 1</div>
+            <div
+              style="
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                flex-wrap: wrap;
+              "
+            >
+              <div class="pill" id="score-pill">SKOR: 0</div>
+              <div class="pill" id="lives-pill">
+                <span id="lives-hearts" class="hearts">♥ ♥ ♥</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress" aria-hidden="true">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+
+          <div class="card ayat-card" id="ayat-card">
+            <div class="badge" id="case-badge">KASUS #01</div>
+            <div class="words" id="words" style="margin-top: 8px"></div>
+            <div
+              id="ayat-surah"
+              style="
+                font-weight: 800;
+                font-size: 11px;
+                letter-spacing: 0.08em;
+                opacity: 0.6;
+                margin-top: 10px;
+              "
+            >
+              QS. Al-Bayyinah:1 • Juz 30
+            </div>
+            <div class="hint-desc" id="instruction" style="margin-top: 10px">
+              TEMUKAN PETUNJUKNYA — Klik kata yang ada Nun Sakinah / Tanwin
+            </div>
+          </div>
+
+          <div class="card hint-panel" id="suspect-panel" style="display: none">
+            <div class="hint-title" id="suspect-title">TERSANGKA DITEMUKAN</div>
+            <div class="hint-desc" id="suspect-desc">
+              نْ — Sekarang periksa huruf setelahnya.
+            </div>
+          </div>
+
+          <div class="choices" id="choices">
+            <button class="btn choice" id="btn-idzhar" disabled>IDZHAR</button>
+            <button class="btn choice" id="btn-bukan" disabled>
+              BUKAN IDZHAR
+            </button>
+          </div>
+
+          <!-- Tooltip Kartu Bukti — gantikan tulisan permanen di bawah tombol -->
+          <div style="position: relative; display: inline-block">
+            <button
+              class="pill"
+              id="hint-trigger"
+              aria-describedby="hint-tooltip"
+              style="cursor: help; background: var(--white)"
+              title="Lihat kartu bukti Idzhar"
+            >
+              💡 KARTU BUKTI — hover / klik
+            </button>
+            <div
+              class="card"
+              id="hint-tooltip"
+              role="tooltip"
+              style="
+                display: none;
+                position: absolute;
+                bottom: 118%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 340px;
+                max-width: 92vw;
+                padding: 14px 16px;
+                text-align: center;
+                z-index: 8;
+                box-shadow: 8px 8px 0 var(--black);
+              "
+            >
+              <div
+                style="
+                  font-weight: 900;
+                  font-size: 11px;
+                  letter-spacing: 0.12em;
+                "
+              >
+                6 HURUF IDZHAR
+              </div>
+              <div
+                class="evidence-letters"
+                style="margin-top: 8px; justify-content: center; display: flex; gap: 6px; flex-wrap: wrap"
+              >
+                <span>ء</span><span>ه</span><span>ع</span><span>ح</span><span>غ</span><span>خ</span>
+              </div>
+              <div
+                style="
+                  font-weight: 800;
+                  font-size: 11px;
+                  opacity: 0.6;
+                  margin-top: 8px;
+                "
+              >
+                NUN SUKUN / TANWIN + salah satu → IDZHAR
+              </div>
+              <div
+                style="
+                  font-size: 10px;
+                  opacity: 0.5;
+                  margin-top: 6px;
+                  font-weight: 700;
+                "
+              >
+                Contoh: نْ + ه → Idzhar &nbsp;|&nbsp; ــٌ + ح → Idzhar
+              </div>
+            </div>
+          </div>
+
+          <div class="kbd-hint">
+            ← → Pilih jawaban &nbsp;·&nbsp; ENTER Konfirmasi &nbsp;·&nbsp; Spasi
+            Kembali/Menu &nbsp;·&nbsp; Klik ayat untuk pilih tersangka
+          </div>
+          <button class="btn small" id="btn-game-menu" style="margin-top: 4px">
+            MENU UTAMA
+          </button>
+        </div>
+      </section>
+
+      <!-- RESULT -->
+      <section id="view-result" class="view" aria-label="Hasil">
+        <div class="card result-card">
+          <div style="font-size: 28px">🎉</div>
+          <div class="h1" style="font-size: 26px; margin-top: 6px">
+            MISI SELESAI!
+          </div>
+          <div class="score-big" id="result-score">0</div>
+          <div
+            style="font-weight: 900; letter-spacing: 0.12em; font-size: 12px"
+          >
+            POIN
+          </div>
+          <div
+            class="hint-desc"
+            id="result-detail"
+            style="margin-top: 10px; font-size: 14px"
+          >
+            0 / 10 SOAL BENAR
+          </div>
+          <div class="rank" id="result-rank">DETEKTIF TAJWID</div>
+          <div class="stack" style="margin-top: 18px">
+            <button class="btn primary" id="btn-replay">MAIN LAGI</button>
+            <button class="btn" id="btn-to-menu">MENU UTAMA</button>
+          </div>
+          <div class="kbd-hint" style="margin-top: 12px">
+            ENTER Main lagi &nbsp;·&nbsp; Spasi Menu
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="card feedback" id="feedback" role="dialog" aria-modal="true">
+      <div class="fb-icon" id="fb-icon">✅</div>
+      <div class="fb-title" id="fb-title">BENAR!</div>
+      <div class="fb-msg" id="fb-msg">Detektif menemukan petunjuk!</div>
+      <div class="fb-detail" id="fb-detail">
+        نْ + ه → ه termasuk huruf Idzhar
+      </div>
+      <div class="fb-point" id="fb-point">+10 POIN</div>
+      <button
+        class="btn small primary"
+        id="fb-next"
+        style="margin-top: 14px; min-width: 200px"
+      >
+        LANJUT
+      </button>
+      <div class="kbd-hint">ENTER Lanjut</div>
+    </div>
+
+    <script>
+      // Dataset — ayat panjang full-verse dari Juz 30 (Juz 'Amma), mode proyektor
+      const QUESTIONS = [
+        {
+          id: 1,
+          ayat: "لَمْ يَكُنِ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ مُنْفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ الْبَيِّنَةُ",
+          words: ["لَمْ","يَكُنِ","الَّذِينَ","كَفَرُوا","مِنْ","أَهْلِ","الْكِتَابِ","وَالْمُشْرِكِينَ","مُنْفَكِّينَ","حَتَّىٰ","تَأْتِيَهُمُ","الْبَيِّنَةُ"],
+          targetIndex: 4,
+          targetLabel: "نْ",
+          after: "ء",
+          hukum: "idzhar",
+          explanation: "Nun sukun bertemu hamzah (ء) — Idzhar Halqi.",
+          surah: "QS. Al-Bayyinah:1",
+          level: 1,
+        },
+        {
+          id: 2,
+          ayat: "فَأَمَّا مَنْ أَعْطَىٰ وَاتَّقَىٰ",
+          words: ["فَأَمَّا","مَنْ","أَعْطَىٰ","وَاتَّقَىٰ"],
+          targetIndex: 1,
+          targetLabel: "نْ",
+          after: "ء",
+          hukum: "idzhar",
+          explanation: "Nun sukun bertemu hamzah (ء) — dibaca jelas (Idzhar).",
+          surah: "QS. Al-Lail:5",
+          level: 1,
+        },
+        {
+          id: 3,
+          ayat: "تُسْقَىٰ مِنْ عَيْنٍ آنِيَةٍ",
+          words: ["تُسْقَىٰ","مِنْ","عَيْنٍ","آنِيَةٍ"],
+          targetIndex: 1,
+          targetLabel: "نْ",
+          after: "ع",
+          hukum: "idzhar",
+          explanation: "Nun sukun bertemu ع — termasuk huruf Idzhar.",
+          surah: "QS. Al-Ghashiyah:5",
+          level: 1,
+        },
+        {
+          id: 4,
+          ayat: "تَصْلَىٰ نَارًا حَامِيَةً",
+          words: ["تَصْلَىٰ","نَارًا","حَامِيَةً"],
+          targetIndex: 1,
+          targetLabel: "ــً",
+          after: "ح",
+          hukum: "idzhar",
+          explanation: "Tanwin (ــً) bertemu ح — Idzhar Halqi.",
+          surah: "QS. Al-Ghashiyah:4",
+          level: 1,
+        },
+        {
+          id: 5,
+          ayat: "إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ",
+          words: ["إِلَّا","الَّذِينَ","آمَنُوا","وَعَمِلُوا","الصَّالِحَاتِ","فَلَهُمْ","أَجْرٌ","غَيْرُ","مَمْنُونٍ"],
+          targetIndex: 6,
+          targetLabel: "ــٌ",
+          after: "غ",
+          hukum: "idzhar",
+          explanation: "Tanwin bertemu غ — Idzhar Halqi.",
+          surah: "QS. At-Tin:6",
+          level: 2,
+        },
+        {
+          id: 6,
+          ayat: "سَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ",
+          words: ["سَلَامٌ","هِيَ","حَتَّىٰ","مَطْلَعِ","الْفَجْرِ"],
+          targetIndex: 0,
+          targetLabel: "ــٌ",
+          after: "ه",
+          hukum: "idzhar",
+          explanation: "Tanwin bertemu ه — dibaca Idzhar.",
+          surah: "QS. Al-Qadr:5",
+          level: 2,
+        },
+        {
+          id: 7,
+          ayat: "الَّذِي أَطْعَمَهُمْ مِنْ جُوعٍ وَآمَنَهُمْ مِنْ خَوْفٍ",
+          words: ["الَّذِي","أَطْعَمَهُمْ","مِنْ","جُوعٍ","وَآمَنَهُمْ","مِنْ","خَوْفٍ"],
+          targetIndex: 5,
+          targetLabel: "نْ",
+          after: "خ",
+          hukum: "idzhar",
+          explanation: "Nun sukun bertemu خ — Idzhar Halqi. (Perhatikan: مِنْ جُوعٍ bukan Idzhar, yang Idzhar adalah مِنْ خَوْفٍ)",
+          surah: "QS. Quraisy:4",
+          level: 2,
+        },
+        {
+          id: 8,
+          ayat: "مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ",
+          words: ["مِنْ","شَرِّ","الْوَسْوَاسِ","الْخَنَّاسِ"],
+          targetIndex: 0,
+          targetLabel: "نْ",
+          after: "ش",
+          hukum: "bukan",
+          explanation: "Nun sukun bertemu ش — bukan Idzhar (hukumnya Ikhfa).",
+          surah: "QS. An-Nas:4",
+          level: 3,
+        },
+        {
+          id: 9,
+          ayat: "وَلَا أَنْتُمْ عَابِدُونَ مَا أَعْبُدُ",
+          words: ["وَلَا","أَنْتُمْ","عَابِدُونَ","مَا","أَعْبُدُ"],
+          targetIndex: 1,
+          targetLabel: "نْ",
+          after: "ت",
+          hukum: "bukan",
+          explanation: "Nun sukun bertemu ت — bukan Idzhar (Ikhfa).",
+          surah: "QS. Al-Kafirun:3",
+          level: 3,
+        },
+        {
+          id: 10,
+          ayat: "بِأَيْدِي سَفَرَةٍ كِرَامٍ بَرَرَةٍ",
+          words: ["بِأَيْدِي","سَفَرَةٍ","كِرَامٍ","بَرَرَةٍ"],
+          targetIndex: 2,
+          targetLabel: "ــٍ",
+          after: "ب",
+          hukum: "bukan",
+          explanation: "Tanwin bertemu ب — bukan Idzhar (Iqlab).",
+          surah: "QS. 'Abasa:16",
+          level: 3,
+        },
+      ];
+
+      const IDZHAR_SET = new Set(["ء", "ه", "ع", "ح", "غ", "خ"]);
+
+      let state = {
+        view: "MENU",
+        tutStep: 0,
+        qIndex: 0,
+        score: 0,
+        lives: 3,
+        correct: 0,
+        selectedIndex: null,
+        answered: false,
+        choiceFocus: 0, // 0 idzhar, 1 bukan
+      };
+
+      const els = {
+        menu: document.getElementById("view-menu"),
+        tutorial: document.getElementById("view-tutorial"),
+        game: document.getElementById("view-game"),
+        result: document.getElementById("view-result"),
+        ayatSurah: document.getElementById("ayat-surah"),
+        words: document.getElementById("words"),
+        caseBadge: document.getElementById("case-badge"),
+        levelPill: document.getElementById("level-pill"),
+        scorePill: document.getElementById("score-pill"),
+        livesHearts: document.getElementById("lives-hearts"),
+        instruction: document.getElementById("instruction"),
+        suspectPanel: document.getElementById("suspect-panel"),
+        suspectTitle: document.getElementById("suspect-title"),
+        suspectDesc: document.getElementById("suspect-desc"),
+        btnIdzhar: document.getElementById("btn-idzhar"),
+        btnBukan: document.getElementById("btn-bukan"),
+        progressBar: document.getElementById("progress-bar"),
+        feedback: document.getElementById("feedback"),
+        overlay: document.getElementById("overlay"),
+        fbIcon: document.getElementById("fb-icon"),
+        fbTitle: document.getElementById("fb-title"),
+        fbMsg: document.getElementById("fb-msg"),
+        fbDetail: document.getElementById("fb-detail"),
+        fbPoint: document.getElementById("fb-point"),
+        resultScore: document.getElementById("result-score"),
+        resultDetail: document.getElementById("result-detail"),
+        resultRank: document.getElementById("result-rank"),
+      };
+
+      function showView(name) {
+        state.view = name;
+        document
+          .querySelectorAll(".view")
+          .forEach((v) => v.classList.remove("active"));
+        if (name === "MENU") els.menu.classList.add("active");
+        if (name === "TUTORIAL") els.tutorial.classList.add("active");
+        if (name === "PLAYING") els.game.classList.add("active");
+        if (name === "RESULT") els.result.classList.add("active");
+        // focus management
+        if (name === "MENU") document.getElementById("btn-mulai").focus();
+        if (name === "TUTORIAL") document.getElementById("tut-next").focus();
+        if (name === "PLAYING" && !els.feedback.classList.contains("show")) {
+          // keep focus on choices if selected
+          if (state.selectedIndex !== null) els.btnIdzhar.focus();
+        }
+        if (name === "RESULT") document.getElementById("btn-replay").focus();
+      }
+
+      function updateHUD() {
+        els.scorePill.textContent = `SKOR: ${state.score}`;
+        const hearts = [1, 2, 3]
+          .map((i) => (i <= state.lives ? "♥" : "♡"))
+          .join(" ");
+        els.livesHearts.innerHTML = hearts
+          .split(" ")
+          .map((h, idx) => {
+            const alive = idx < state.lives;
+            return `<span class="${alive ? "" : "dead"}">${h}</span>`;
+          })
+          .join(" ");
+        const pct = (state.qIndex / QUESTIONS.length) * 100;
+        els.progressBar.style.width = pct + "%";
+      }
+
+      function loadQuestion() {
+        const q = QUESTIONS[state.qIndex];
+        if (!q) {
+          showResult();
+          return;
+        }
+        els.caseBadge.textContent = `KASUS #${String(q.id).padStart(2, "0")}`;
+        els.levelPill.textContent = `KASUS #${String(q.id).padStart(2, "0")} — LEVEL ${q.level} • Juz 30`;
+        els.ayatSurah.textContent = `${q.surah} • Juz 30`;
+        els.words.innerHTML = "";
+        q.words.forEach((w, idx) => {
+          const b = document.createElement("button");
+          b.className = "word";
+          b.type = "button";
+          b.textContent = w;
+          b.dataset.index = idx;
+          b.setAttribute("aria-label", `Kata ${idx + 1}: ${w}`);
+          b.addEventListener("click", () => selectWord(idx));
+          els.words.appendChild(b);
+        });
+        state.selectedIndex = null;
+        state.answered = false;
+        state.choiceFocus = 0;
+        els.suspectPanel.style.display = "none";
+        els.instruction.textContent =
+          "TEMUKAN PETUNJUKNYA — Klik bagian yang ada Nun Sakinah / Tanwin";
+        els.instruction.style.color = "";
+        els.btnIdzhar.disabled = true;
+        els.btnBukan.disabled = true;
+        els.btnIdzhar.classList.remove("selected");
+        els.btnBukan.classList.remove("selected");
+        updateChoiceFocus();
+        updateHUD();
+      }
+
+      function selectWord(idx) {
+        const q = QUESTIONS[state.qIndex];
+        state.selectedIndex = idx;
+        [...els.words.children].forEach((c) => c.classList.remove("selected"));
+        els.words.children[idx].classList.add("selected");
+        // check if correct target
+        if (idx === q.targetIndex) {
+          els.suspectPanel.style.display = "block";
+          els.suspectTitle.textContent = "TERSANGKA DITEMUKAN ✓";
+          els.suspectDesc.innerHTML = `<span style="font-family:'Scheherazade New',serif;font-size:20px">${q.targetLabel}</span> — Sekarang periksa huruf setelahnya: <b style="font-family:'Scheherazade New',serif;font-size:18px">${q.after}</b>`;
+          els.instruction.textContent =
+            "Bagus! Sekarang putuskan: apakah ini IDZHAR?";
+          els.instruction.style.color = "#15803d";
+          els.btnIdzhar.disabled = false;
+          els.btnBukan.disabled = false;
+          updateChoiceFocus();
+          els.btnIdzhar.focus();
+        } else {
+          els.suspectPanel.style.display = "block";
+          els.suspectTitle.textContent = "BELUM TEPAT";
+          els.suspectDesc.textContent =
+            "Itu bukan lokasi Nun Sakinah / Tanwin. Coba periksa kata lain — cari نْ atau tanwin (ــً ــٍ ــٌ).";
+          els.instruction.textContent =
+            "Coba klik kata lain — cari نْ / tanwin";
+          els.instruction.style.color = "#b45309";
+          // do not enable answer buttons if wrong selection
+          els.btnIdzhar.disabled = true;
+          els.btnBukan.disabled = true;
+        }
+      }
+
+      function updateChoiceFocus() {
+        els.btnIdzhar.classList.toggle(
+          "selected",
+          state.choiceFocus === 0 && !els.btnIdzhar.disabled,
+        );
+        els.btnBukan.classList.toggle(
+          "selected",
+          state.choiceFocus === 1 && !els.btnBukan.disabled,
+        );
+      }
+
+      function answer(hukum) {
+        if (state.selectedIndex === null) {
+          els.instruction.textContent =
+            "Pilih dulu tersangkanya — klik kata yang mengandung نْ / tanwin!";
+          els.instruction.style.color = "#dc2626";
+          els.words.animate(
+            [
+              { transform: "translateX(0)" },
+              { transform: "translateX(-6px)" },
+              { transform: "translateX(6px)" },
+              { transform: "translateX(0)" },
+            ],
+            { duration: 300 },
+          );
+          return;
+        }
+        // ensure selected is correct target; if wrong target but they forced answer via keyboard, block
+        const q = QUESTIONS[state.qIndex];
+        if (state.selectedIndex !== q.targetIndex) {
+          els.instruction.textContent =
+            "Tersangka belum tepat — pilih kata yang benar dulu.";
+          return;
+        }
+        if (state.answered) return;
+        state.answered = true;
+        const correct = hukum === q.hukum;
+        if (correct) {
+          state.score += 10;
+          state.correct += 1;
+          showFeedback(true, q);
+        } else {
+          state.lives -= 1;
+          showFeedback(false, q);
+        }
+        updateHUD();
+      }
+
+      function showFeedback(isCorrect, q) {
+        els.overlay.classList.add("show");
+        els.feedback.classList.add("show");
+        if (isCorrect) {
+          els.fbIcon.textContent = "✅";
+          els.fbTitle.textContent = "BENAR!";
+          els.fbTitle.style.color = "#15803d";
+          els.fbMsg.textContent = `Detektif menemukan petunjuk! • ${q.surah}`;
+          els.fbDetail.innerHTML = `<span style="font-family:'Scheherazade New',serif">${q.targetLabel} + ${q.after}</span> — <b>${q.after}</b> termasuk huruf Idzhar.<br/><span style="font-size:11px;opacity:0.7;letter-spacing:0.06em">${q.surah} • ${q.explanation}</span>`;
+          els.fbDetail.style.direction = "rtl";
+          els.fbPoint.textContent = "+10 POIN";
+          els.fbPoint.style.color = "#15803d";
+        } else {
+          els.fbIcon.textContent = "🔎";
+          els.fbTitle.textContent = "BELUM TEPAT!";
+          els.fbTitle.style.color = "#dc2626";
+          els.fbMsg.textContent = `Coba periksa kembali huruf setelah Nun Sakinah / Tanwin. • ${q.surah}`;
+          if (q.hukum === "idzhar") {
+            els.fbDetail.innerHTML = `<span style="font-family:'Scheherazade New',serif">${q.targetLabel} + ${q.after}</span> — seharusnya <b>IDZHAR</b> karena ${q.after} ∈ { ء ه ع ح غ خ }<br/><span style="font-size:11px;opacity:0.7">${q.surah}</span>`;
+          } else {
+            els.fbDetail.innerHTML = `<span style="font-family:'Scheherazade New',serif">${q.targetLabel} + ${q.after}</span> — <b>BUKAN IDZHAR</b>. ${q.explanation}<br/><span style="font-size:11px;opacity:0.7">${q.surah}</span>`;
+          }
+          els.fbDetail.style.direction = "rtl";
+          els.fbPoint.textContent =
+            q.hukum === "idzhar"
+              ? "Petunjuk: ء ه ع ح غ خ"
+              : "Petunjuk: ء ه ع ح غ خ — jika tidak ada, bukan Idzhar";
+          els.fbPoint.style.color = "#6b7280";
+        }
+        document.getElementById("fb-next").focus();
+      }
+
+      function closeFeedback() {
+        els.overlay.classList.remove("show");
+        els.feedback.classList.remove("show");
+        if (state.lives <= 0) {
+          showResult(true);
+          return;
+        }
+        state.qIndex += 1;
+        if (state.qIndex >= QUESTIONS.length) {
+          showResult();
+        } else {
+          loadQuestion();
+        }
+      }
+
+      function showResult(isGameOver = false) {
+        showView("RESULT");
+        els.resultScore.textContent = state.score;
+        els.resultDetail.textContent = `${state.correct} / ${QUESTIONS.length} KASUS TERPECAHKAN${isGameOver ? " — NYAWA HABIS" : ""}`;
+        let rank = "DETEKTIF PEMULA";
+        if (state.correct >= 9) rank = "MASTER DETEKTIF 🌟";
+        else if (state.correct >= 7) rank = "DETEKTIF HEBAT";
+        else if (state.correct >= 4) rank = "DETEKTIF TAJWID";
+        else if (state.correct >= 1) rank = "DETEKTIF MAGANG";
+        els.resultRank.textContent = rank;
+        els.progressBar.style.width = "100%";
+      }
+
+      function resetGame() {
+        state.qIndex = 0;
+        state.score = 0;
+        state.lives = 3;
+        state.correct = 0;
+        state.selectedIndex = null;
+        state.answered = false;
+        state.choiceFocus = 0;
+        loadQuestion();
+        showView("PLAYING");
+        updateHUD();
+      }
+
+      // Menu events — MULAI langsung ke game (tanpa tutorial) untuk mode proyektor
+      document.getElementById("btn-mulai").addEventListener("click", () => {
+        resetGame();
+      });
+      document.getElementById("btn-cara").addEventListener("click", () => {
+        state.tutStep = 0;
+        updateTutorial();
+        showView("TUTORIAL");
+      });
+      document
+        .getElementById("btn-game-menu")
+        .addEventListener("click", () => showView("MENU"));
+      document
+        .getElementById("btn-replay")
+        .addEventListener("click", () => resetGame());
+      document
+        .getElementById("btn-to-menu")
+        .addEventListener("click", () => showView("MENU"));
+
+      // Tutorial
+      function updateTutorial() {
+        document
+          .querySelectorAll(".tut-step")
+          .forEach((s) =>
+            s.classList.toggle(
+              "active",
+              Number(s.dataset.step) === state.tutStep,
+            ),
+          );
+        document
+          .querySelectorAll(".dot")
+          .forEach((d, i) => d.classList.toggle("active", i === state.tutStep));
+        const atLast = state.tutStep === 4;
+        document.getElementById("tut-next").style.display = atLast
+          ? "none"
+          : "inline-flex";
+        document.getElementById("tut-prev").style.display =
+          state.tutStep === 0 ? "none" : "inline-flex";
+        document.getElementById("tut-start").style.display = atLast
+          ? "inline-flex"
+          : "none";
+        if (atLast) document.getElementById("tut-start").focus();
+      }
+      document.getElementById("tut-next").addEventListener("click", () => {
+        if (state.tutStep < 4) {
+          state.tutStep++;
+          updateTutorial();
+        }
+      });
+      document.getElementById("tut-prev").addEventListener("click", () => {
+        if (state.tutStep > 0) {
+          state.tutStep--;
+          updateTutorial();
+        }
+      });
+      document.getElementById("tut-start").addEventListener("click", () => {
+        resetGame();
+      });
+
+      // Game choice events
+      document
+        .getElementById("btn-idzhar")
+        .addEventListener("click", () => answer("idzhar"));
+      document
+        .getElementById("btn-bukan")
+        .addEventListener("click", () => answer("bukan"));
+      document
+        .getElementById("fb-next")
+        .addEventListener("click", closeFeedback);
+      document
+        .getElementById("overlay")
+        .addEventListener("click", closeFeedback);
+
+      // Keyboard
+      document.addEventListener("keydown", (e) => {
+        // global shortcuts
+        if (e.key === " " || e.code === "Space") {
+          if (
+            state.view === "TUTORIAL" &&
+            els.feedback.classList.contains("show") == false
+          ) {
+            e.preventDefault();
+            if (state.tutStep === 0) showView("MENU");
+            else {
+              state.tutStep = Math.max(0, state.tutStep - 1);
+              updateTutorial();
+            }
+          } else if (state.view === "PLAYING") {
+            if (els.feedback.classList.contains("show")) {
+              e.preventDefault();
+              closeFeedback();
+            } else {
+              e.preventDefault();
+              showView("MENU");
+            }
+          } else if (state.view === "RESULT") {
+            e.preventDefault();
+            showView("MENU");
+          }
+        }
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+          if (state.view === "MENU") {
+            e.preventDefault();
+            const m = document.getElementById("btn-mulai"),
+              c = document.getElementById("btn-cara");
+            if (document.activeElement === m) c.focus();
+            else m.focus();
+          } else if (
+            state.view === "TUTORIAL" &&
+            !els.feedback.classList.contains("show")
+          ) {
+            e.preventDefault();
+            if (e.key === "ArrowRight" && state.tutStep < 4) {
+              state.tutStep++;
+              updateTutorial();
+            }
+            if (e.key === "ArrowLeft" && state.tutStep > 0) {
+              state.tutStep--;
+              updateTutorial();
+            }
+          } else if (
+            state.view === "PLAYING" &&
+            !els.feedback.classList.contains("show") &&
+            state.selectedIndex !== null
+          ) {
+            e.preventDefault();
+            state.choiceFocus = e.key === "ArrowLeft" ? 0 : 1;
+            updateChoiceFocus();
+            (state.choiceFocus === 0 ? els.btnIdzhar : els.btnBukan).focus();
+          } else if (state.view === "RESULT") {
+            e.preventDefault();
+            const a = document.getElementById("btn-replay"),
+              b = document.getElementById("btn-to-menu");
+            if (document.activeElement === a) b.focus();
+            else a.focus();
+          }
+        }
+        if (e.key === "Enter") {
+          if (state.view === "MENU") {
+            e.preventDefault();
+            if (
+              document.activeElement === document.getElementById("btn-cara")
+            ) {
+              state.tutStep = 0;
+              updateTutorial();
+              showView("TUTORIAL");
+            } else {
+              resetGame();
+            }
+          } else if (state.view === "TUTORIAL") {
+            e.preventDefault();
+            if (state.tutStep < 4) {
+              state.tutStep++;
+              updateTutorial();
+            } else resetGame();
+          } else if (state.view === "PLAYING") {
+            if (els.feedback.classList.contains("show")) {
+              e.preventDefault();
+              closeFeedback();
+            } else if (state.selectedIndex !== null) {
+              e.preventDefault();
+              // if focus is on a button, use that
+              if (document.activeElement === els.btnBukan) answer("bukan");
+              else if (document.activeElement === els.btnIdzhar)
+                answer("idzhar");
+              else answer(state.choiceFocus === 0 ? "idzhar" : "bukan");
+            } else {
+              // try to trigger instruction shake via Enter as well
+              e.preventDefault();
+              answer(state.choiceFocus === 0 ? "idzhar" : "bukan");
+            }
+          } else if (state.view === "RESULT") {
+            e.preventDefault();
+            if (
+              document.activeElement === document.getElementById("btn-to-menu")
+            )
+              showView("MENU");
+            else resetGame();
+          }
+        }
+        if (e.key === "Escape") {
+          if (els.feedback.classList.contains("show")) closeFeedback();
+          else if (state.view === "PLAYING") showView("MENU");
+          else if (state.view === "TUTORIAL") showView("MENU");
+          else if (state.view === "RESULT") showView("MENU");
+        }
+      });
+
+      // Tooltip Kartu Bukti
+      (function () {
+        const trig = document.getElementById("hint-trigger");
+        const tip = document.getElementById("hint-tooltip");
+        if (!trig || !tip) return;
+        let pinned = false;
+        const show = () => (tip.style.display = "block");
+        const hide = () => {
+          if (!pinned) tip.style.display = "none";
+        };
+        trig.addEventListener("mouseenter", show);
+        trig.addEventListener("mouseleave", hide);
+        trig.addEventListener("focus", show);
+        trig.addEventListener("blur", hide);
+        trig.addEventListener("click", (e) => {
+          e.preventDefault();
+          pinned = !pinned;
+          tip.style.display = pinned ? "block" : "none";
+          trig.setAttribute("aria-expanded", String(pinned));
+        });
+        // klik di luar untuk tutup
+        document.addEventListener("click", (e) => {
+          if (!trig.contains(e.target) && !tip.contains(e.target)) {
+            pinned = false;
+            tip.style.display = "none";
+            trig.setAttribute("aria-expanded", "false");
+          }
+        });
+      })();
+
+      // Init
+      updateHUD();
+      updateTutorial();
+    </script>
+  </body>
+</html>
