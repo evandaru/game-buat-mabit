@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Slide Inspektor Tajwid - Juz 30</title>
+    <script>
+      // Normalisasi trailing slash agar path relatif seperti 'ayat.js' terbaca dengan benar
+      if (
+        !location.pathname.endsWith("/") &&
+        !location.pathname.split("/").pop().includes(".")
+      ) {
+        location.replace(
+          location.pathname + "/" + location.search + location.hash
+        );
+      }
+    </script>
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Scheherazade+New:wght@400;700&display=swap"
       rel="stylesheet"
@@ -614,6 +625,12 @@
 
     <script src="ayat.js"></script>
     <script>
+      // Fallback loader jika halaman dibuka dari parent folder (/tebak_tajwid) tanpa trailing slash
+      if (typeof DATA === "undefined") {
+        document.write('<script src="tebak_tajwid/ayat.js"><\/script>');
+      }
+    </script>
+    <script>
       let order = [],
         idx = 0,
         curTask = "nun",
@@ -643,6 +660,10 @@
         return [...a].sort(() => Math.random() - 0.5);
       }
       function startGame() {
+        if (typeof DATA === "undefined" || !Array.isArray(DATA) || DATA.length === 0) {
+          alert("Gagal memuat data ayat (DATA belum tersedia). Silakan muat ulang halaman atau buka melalui http://.../tebak_tajwid/");
+          return;
+        }
         order = shuffle(DATA);
         idx = 0;
         seen = 0;
