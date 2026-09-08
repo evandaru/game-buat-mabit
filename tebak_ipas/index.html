@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tebak IPAS - Kelas 3 SD</title>
+    <script>
+      // Normalisasi trailing slash agar path relatif seperti 'soal.js' terbaca dengan benar
+      if (
+        !location.pathname.endsWith("/") &&
+        !location.pathname.split("/").pop().includes(".")
+      ) {
+        location.replace(
+          location.pathname + "/" + location.search + location.hash
+        );
+      }
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --black: #000;
+        --yellow: #ffd23f;
+        --green: #22c55e;
+        --red: #ff4d4d;
+        --blue: #3b82f6;
+        --purple: #a78bfa;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Outfit", sans-serif;
+        user-select: none;
+      }
+      body {
+        background: var(--bg);
+        color: var(--black);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow-x: hidden;
+        overflow-y: auto;
+        position: relative;
+        padding: 16px 0 80px;
+      }
+      body::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+        background-size: 28px 28px;
+        opacity: 0.5;
+        z-index: 0;
+      }
+      #app {
+        position: relative;
+        z-index: 10;
+        width: 96%;
+        max-width: 1100px;
+        text-align: center;
+      }
+      .screen {
+        display: none;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .screen.active {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .title {
+        font-size: clamp(32px, 5.5vw, 58px);
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        line-height: 1;
+      }
+      .title span {
+        background: var(--green);
+        color: #fff;
+        padding: 2px 12px;
+        border: 3px solid var(--black);
+        border-radius: 12px;
+        box-shadow: 4px 4px 0 var(--black);
+        display: inline-block;
+        transform: rotate(-1deg);
+      }
+      .cards-container {
+        display: flex;
+        gap: 4vw;
+        justify-content: center;
+        padding: 2rem 1rem;
+        flex-wrap: wrap;
+      }
+      .card-select {
+        flex: 1;
+        min-width: 280px;
+        max-width: 560px;
+        height: 42vh;
+        min-height: 340px;
+        background: #fff;
+        border: 4px solid var(--black);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 12px 12px 0 var(--black);
+        transition: all 0.2s ease;
+      }
+      .card-select:hover,
+      .card-select.hover-sim {
+        transform: translate(-6px, -6px);
+        box-shadow: 18px 18px 0 var(--black);
+        background: #f9fafb;
+      }
+      .card-select:active {
+        transform: translate(6px, 6px);
+        box-shadow: 0 0 0 var(--black);
+      }
+      .card-select h2 {
+        font-size: clamp(36px, 5vw, 56px);
+        font-weight: 900;
+        line-height: 1;
+      }
+      .card-select .emoji-big { font-size: 54px; margin-top: 8px; }
+      /* FLIP */
+      .flip-wrapper {
+        perspective: 1200px;
+        width: min(900px, 98%);
+        margin: 28px auto 0;
+        overflow: visible;
+        padding-top: 10px;
+      }
+      .flip-card {
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.75s cubic-bezier(0.68, -0.35, 0.265, 1.55);
+      }
+      .flip-card.flipped { transform: rotateY(180deg); }
+      .face { backface-visibility: hidden; position: relative; }
+      .face.back { position: absolute; inset: 0; transform: rotateY(180deg); }
+      .question-box {
+        background: #fff;
+        border: 4px solid var(--black);
+        border-radius: 24px;
+        padding: 28px 22px 24px;
+        min-height: 380px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 14px 14px 0 var(--black);
+        overflow: visible;
+        position: relative;
+      }
+      .counter-pill {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        border: 3px solid var(--black);
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-weight: 900;
+        font-size: 11px;
+        background: #fff;
+        box-shadow: 3px 3px 0 var(--black);
+        z-index: 2;
+      }
+      .kategori-pill {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        border: 3px solid var(--black);
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-weight: 800;
+        font-size: 10px;
+        background: var(--blue);
+        color: #fff;
+        box-shadow: 3px 3px 0 var(--black);
+        z-index: 2;
+        max-width: 45%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      /* ===== GAMBAR SOAL ===== */
+      .gambar-frame {
+        width: min(100%, 560px);
+        border: 3px solid var(--black);
+        border-radius: 14px;
+        background: #f0fdf4;
+        box-shadow: 5px 5px 0 var(--black);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      .gambar-frame svg,
+      .gambar-frame img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      .emoji-scene {
+        font-size: clamp(44px, 9vw, 64px);
+        letter-spacing: 0.18em;
+        line-height: 1;
+      }
+      .gambar-label {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        color: #6b7280;
+        text-transform: uppercase;
+        margin-top: -4px;
+        margin-bottom: 6px;
+      }
+      .pertanyaan {
+        font-size: clamp(18px, 2.6vw, 24px);
+        font-weight: 800;
+        line-height: 1.45;
+        max-width: 720px;
+        margin-top: 4px;
+      }
+      .kalimat-lengkap {
+        font-size: clamp(20px, 3vw, 27px);
+        font-weight: 800;
+        line-height: 1.55;
+        max-width: 740px;
+        margin-top: 10px;
+      }
+      .jawab-inline {
+        background: var(--green);
+        color: #fff;
+        border: 3px solid var(--black);
+        border-radius: 12px;
+        padding: 2px 12px;
+        box-shadow: 4px 4px 0 var(--black);
+        display: inline-block;
+        white-space: nowrap;
+      }
+      .explain {
+        margin-top: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.5;
+        max-width: 700px;
+        color: #374151;
+      }
+      .btn-row {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .btn {
+        padding: 13px 26px;
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 4px solid var(--black);
+        border-radius: 999px;
+        cursor: pointer;
+        box-shadow: 6px 6px 0 var(--black);
+        transition: all 0.15s;
+        background: #fff;
+      }
+      .btn:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--black); }
+      .btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--black); }
+      .btn.primary { background: var(--yellow); }
+      .btn.green { background: var(--green); color: #fff; }
+      .controls-hint {
+        position: fixed;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #6b7280;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        z-index: 10;
+        text-align: center;
+        white-space: nowrap;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 2px solid #e5e7eb;
+      }
+      kbd {
+        background: #fff;
+        padding: 2px 7px;
+        border-radius: 6px;
+        border: 2px solid #6b7280;
+        font-family: monospace;
+        color: #111;
+        margin: 0 2px;
+        font-weight: 900;
+      }
+      .spinning { animation: spinBlur 0.65s ease; }
+      @keyframes spinBlur {
+        0% { transform: rotateY(0) scale(1); filter: blur(0); }
+        30% { transform: rotateY(180deg) scale(0.92); filter: blur(4px); opacity: 0.6; }
+        60% { transform: rotateY(540deg) scale(1.02); filter: blur(2px); }
+        100% { transform: rotateY(720deg) scale(1); filter: blur(0); }
+      }
+      .confetti {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        border-radius: 24px;
+      }
+      .confetti i {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        top: -10px;
+        animation: fall 900ms linear forwards;
+      }
+      @keyframes fall {
+        to { transform: translateY(500px) rotate(720deg); }
+      }
+      @media (max-width: 700px) {
+        .card-select { width: 92vw; min-height: 250px; height: 32vh; }
+        .question-box { min-height: 480px; padding: 40px 12px 20px; }
+        .controls-hint { font-size: 10px; bottom: 6px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- HOME -->
+      <div id="home-screen" class="screen active">
+        <div style="margin-bottom: 10px">
+          <div class="title">TEBAK <span>IPAS</span></div>
+        </div>
+        <div class="cards-container" style="justify-content: center">
+          <div class="card-select" id="card-start" onclick="startGame()">
+            <h2>MULAI</h2>
+            <div class="emoji-big">🔬🌍</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME -->
+      <div id="game-screen" class="screen">
+        <div class="flip-wrapper" id="flip-wrapper">
+          <div class="flip-card" id="flip-card">
+            <!-- DEPAN: PERTANYAAN -->
+            <div class="face front">
+              <div class="question-box" id="q-box-front">
+                <span class="kategori-pill" id="kategori-pill">Kategori</span>
+                <span class="counter-pill" id="counter-pill">1 / 10</span>
+                <div class="gambar-frame" id="gambar-frame" style="display: none">
+                  <div id="gambar-holder"></div>
+                </div>
+                <div class="pertanyaan" id="pertanyaan">...</div>
+                <div class="btn-row">
+                  <button class="btn primary" onclick="revealAnswer()">LIHAT JAWABAN ✨</button>
+                  <button class="btn" onclick="spinNext()">SOAL ACAK 🎲</button>
+                </div>
+              </div>
+            </div>
+            <!-- BELAKANG: JAWABAN -->
+            <div class="face back">
+              <div class="question-box" id="q-box-back" style="background: #fdfdf7">
+                <div class="confetti" id="confetti"></div>
+                <div class="gambar-frame" id="gambar-frame-back" style="display: none">
+                  <div id="gambar-holder-back"></div>
+                </div>
+                <div class="kalimat-lengkap" id="kalimat-lengkap">...</div>
+                <div class="explain" id="explain-back"></div>
+                <div class="btn-row">
+                  <button class="btn green" onclick="spinNext()">SOAL BERIKUTNYA →</button>
+                  <button class="btn" onclick="hideAnswer()">KEMBALI KE SOAL</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="controls-hint">
+      Operator: <kbd>Spasi</kbd> Lihat/Kembali | <kbd>Enter</kbd> Acak | <kbd>Esc</kbd> Menu
+    </div>
+
+    <script src="soal.js"></script>
+    <script>
+      // Fallback loader jika halaman dibuka dari parent folder tanpa trailing slash
+      if (typeof DATA === "undefined") {
+        document.write('<script src="tebak_ipas/soal.js"><\\/script>');
+      }
+    </script>
+    <script>
+      let order = [], idx = 0, flipped = false, isAnim = false, seen = 0;
+
+      const els = {
+        home: document.getElementById("home-screen"),
+        game: document.getElementById("game-screen"),
+        flip: document.getElementById("flip-card"),
+        tanya: document.getElementById("pertanyaan"),
+        kalimat: document.getElementById("kalimat-lengkap"),
+        explainB: document.getElementById("explain-back"),
+        counter: document.getElementById("counter-pill"),
+        kategori: document.getElementById("kategori-pill"),
+        qBoxF: document.getElementById("q-box-front"),
+        gambarFrame: document.getElementById("gambar-frame"),
+        gambarHolder: document.getElementById("gambar-holder"),
+        gambarFrameB: document.getElementById("gambar-frame-back"),
+        gambarHolderB: document.getElementById("gambar-holder-back"),
+      };
+
+      function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+      // ===== RENDER GAMBAR SOAL =====
+      function renderGambar(holder, frame, q) {
+        holder.innerHTML = "";
+        if (!q || !q.gambar) {
+          frame.style.display = "none";
+          return;
+        }
+        frame.style.display = "";
+        const g = q.gambar;
+        if (g.tipe === "svg") {
+          const svg = (typeof DAFTAR_GAMBAR !== "undefined" && DAFTAR_GAMBAR[g.id]) || "";
+          if (svg) {
+            holder.innerHTML = svg;
+          } else {
+            frame.style.display = "none";
+          }
+        } else if (g.tipe === "img") {
+          const img = document.createElement("img");
+          img.src = g.src;
+          img.alt = "Gambar soal";
+          img.onerror = () => { frame.style.display = "none"; };
+          holder.appendChild(img);
+        } else if (g.tipe === "emoji") {
+          const scene = document.createElement("div");
+          scene.className = "emoji-scene";
+          scene.textContent = (g.scene || []).join(" ");
+          holder.appendChild(scene);
+        }
+      }
+
+      function startGame() {
+        if (typeof DATA === "undefined" || !Array.isArray(DATA) || DATA.length === 0) {
+          alert("Gagal memuat soal (DATA belum tersedia). Buka via http://.../tebak_ipas/ atau cek file soal.js");
+          return;
+        }
+        order = shuffle(DATA);
+        idx = 0; seen = 0;
+        flipped = false;
+        els.flip.classList.remove("flipped");
+        switchScreen(els.home, els.game);
+        setTimeout(() => loadQuestion(), 300);
+      }
+
+      function goHome() {
+        if (isAnim) return;
+        flipped = false;
+        els.flip.classList.remove("flipped");
+        switchScreen(els.game, els.home);
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+      // Isi titik-titik (....) dengan jawaban, di-highlight hijau
+      function completedHTML(q) {
+        const ans = '<span class="jawab-inline">' + escapeHtml(q.jawaban) + "</span>";
+        const safe = escapeHtml(q.pertanyaan);
+        if (/\.{3,}/.test(safe)) return safe.replace(/\.{3,}/, ans);
+        return safe + " " + ans;
+      }
+      function completedText(q) {
+        if (/\.{3,}/.test(q.pertanyaan)) return q.pertanyaan.replace(/\.{3,}/, q.jawaban);
+        return q.pertanyaan + " " + q.jawaban;
+      }
+
+      function loadQuestion() {
+        const q = order[idx];
+        els.tanya.textContent = q.pertanyaan;
+        els.kategori.textContent = q.kategori || "IPAS";
+        seen++;
+        els.counter.textContent = seen + " • No." + q.id;
+        renderGambar(els.gambarHolder, els.gambarFrame, q);
+        // back: tampilkan kalimat lengkap (titik-titik sudah terisi jawaban)
+        els.kalimat.innerHTML = completedHTML(q);
+        renderGambar(els.gambarHolderB, els.gambarFrameB, q);
+        // penjelasan hanya tampil kalau ada info TAMBAHAN di luar kalimat lengkap
+        const norm = (s) => (s || "").trim().replace(/[.]+$/, "").trim().toLowerCase();
+        if (q.penjelasan && norm(q.penjelasan) !== norm(completedText(q))) {
+          els.explainB.textContent = q.penjelasan;
+          els.explainB.style.display = "";
+        } else {
+          els.explainB.textContent = "";
+          els.explainB.style.display = "none";
+        }
+        els.qBoxF.classList.remove("spinning");
+      }
+
+      function revealAnswer() {
+        if (flipped || isAnim) return;
+        flipped = true;
+        els.flip.classList.add("flipped");
+        launchConfetti();
+      }
+      function hideAnswer() {
+        if (!flipped || isAnim) return;
+        flipped = false;
+        els.flip.classList.remove("flipped");
+      }
+
+      function spinNext() {
+        if (isAnim) return;
+        isAnim = true;
+        if (flipped) { flipped = false; els.flip.classList.remove("flipped"); }
+        const box = els.qBoxF;
+        box.classList.add("spinning");
+        let c = 0, max = 12;
+        const iv = setInterval(() => {
+          const r = DATA[Math.floor(Math.random() * DATA.length)];
+          els.tanya.textContent = r.pertanyaan;
+          els.tanya.style.opacity = 0.3 + Math.random() * 0.4;
+          c++;
+          if (c >= max) {
+            clearInterval(iv);
+            idx = (idx + 1) % order.length;
+            if (idx === 0) order = shuffle(DATA);
+            els.tanya.style.opacity = 1;
+            loadQuestion();
+            box.classList.remove("spinning");
+            isAnim = false;
+          }
+        }, 65);
+      }
+
+      function switchScreen(hide, show) {
+        hide.style.opacity = 0;
+        hide.style.transform = "translateY(-20px)";
+        setTimeout(() => {
+          hide.classList.remove("active");
+          show.classList.add("active");
+          void show.offsetWidth;
+          show.style.opacity = 1;
+          show.style.transform = "translateY(0)";
+        }, 200);
+      }
+
+      function launchConfetti() {
+        const c = document.getElementById("confetti");
+        c.innerHTML = "";
+        const cols = ["#FFD23F", "#22c55e", "#3b82f6", "#ff4d4d", "#a78bfa", "#f59e0b"];
+        for (let i = 0; i < 18; i++) {
+          const e = document.createElement("i");
+          e.style.left = Math.random() * 100 + "%";
+          e.style.background = cols[Math.floor(Math.random() * cols.length)];
+          e.style.transform = `rotate(${Math.random() * 360}deg)`;
+          e.style.animationDelay = Math.random() * 0.25 + "s";
+          e.style.borderRadius = Math.random() > 0.5 ? "50%" : "4px";
+          c.appendChild(e);
+        }
+        setTimeout(() => (c.innerHTML = ""), 1200);
+      }
+
+      function triggerSim(el, fn) {
+        el.classList.add("hover-sim");
+        setTimeout(() => { el.classList.remove("hover-sim"); fn(); }, 150);
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (isAnim) return;
+        const homeActive = els.home.classList.contains("active");
+        if (homeActive) {
+          if (e.key === "Enter" || e.code === "Space") {
+            e.preventDefault();
+            triggerSim(document.getElementById("card-start"), () => startGame());
+          }
+        } else {
+          if (e.code === "Space") { e.preventDefault(); flipped ? hideAnswer() : revealAnswer(); }
+          if (e.key === "Enter") { e.preventDefault(); spinNext(); }
+          if (e.key === "Escape") { e.preventDefault(); goHome(); }
+        }
+      });
+    </script>
+  </body>
+</html>
